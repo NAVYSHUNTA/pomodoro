@@ -1,5 +1,6 @@
 use chrono::Timelike;
 
+// ポモドーロの開始時刻を取得する
 pub fn get_pomodoro_start_time(current_datetime: chrono::DateTime<chrono::Local>) -> chrono::DateTime<chrono::Local> {
     let mut result = current_datetime;
 
@@ -15,16 +16,17 @@ pub fn get_pomodoro_start_time(current_datetime: chrono::DateTime<chrono::Local>
     result
 }
 
-pub fn calc_pomodoro(start_datetime: chrono::DateTime<chrono::Local>) -> Vec<chrono::DateTime<chrono::Local>> {
+// ポモドーロのスケジュールに組み込む時刻を生成する
+pub fn generate_pomodoro_schedule(pomodoro_start_datetime: chrono::DateTime<chrono::Local>) -> Vec<chrono::DateTime<chrono::Local>> {
     const REPEAT: i32 = 4;
     const WORK_TIME: i64 = 25;
     const BREAK_TIME: i64 = 5;
     const LONG_BREAK_TIME: i64 = 35;
     let mut result = Vec::new();
 
-    result.push(start_datetime);
+    result.push(pomodoro_start_datetime);
 
-    let mut current_datetime = start_datetime;
+    let mut current_datetime = pomodoro_start_datetime;
 
     for i in 1..=REPEAT {
         current_datetime += chrono::Duration::minutes(WORK_TIME);
@@ -54,19 +56,23 @@ pub fn calc_pomodoro(start_datetime: chrono::DateTime<chrono::Local>) -> Vec<chr
     result
 }
 
-pub fn calc_result_pomodoro(res: Vec<chrono::DateTime<chrono::Local>>) -> Vec<String> {
+// ポモドーロのスケジュールを取得する
+pub fn get_pomodoro_schedule(current_datetime: chrono::DateTime<chrono::Local>) -> Vec<String> {
+    let pomodoro_start_datetime = get_pomodoro_start_time(current_datetime);
+    let data = generate_pomodoro_schedule(pomodoro_start_datetime);
+
     let mut result = Vec::new();
     let format_datetime = |dt: chrono::DateTime<chrono::Local>| dt.format("%m/%d %H:%M").to_string();
     let format_time = |dt: chrono::DateTime<chrono::Local>| dt.format("%H:%M").to_string();
 
     let mut work_cnt = 1;
     let mut break_cnt = 1;
-    for i in 0..res.len() - 1 {
+    for i in 0..data.len() - 1 {
         if i % 2 == 0 {
-            result.push(format!("{} ~ {} work {}", format_datetime(res[i]), format_time(res[i + 1]), work_cnt));
+            result.push(format!("{} ~ {} work {}", format_datetime(data[i]), format_time(data[i + 1]), work_cnt));
             work_cnt += 1;
         } else {
-            result.push(format!("{} ~ {} break {}\n", format_datetime(res[i]), format_time(res[i + 1]), break_cnt));
+            result.push(format!("{} ~ {} break {}\n", format_datetime(data[i]), format_time(data[i + 1]), break_cnt));
             break_cnt += 1;
         }
     }

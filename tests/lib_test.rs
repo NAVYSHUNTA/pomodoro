@@ -1,50 +1,47 @@
-use chrono::{Local, TimeZone};
 use pomodoro::*;
+use chrono::TimeZone;
 
 #[test]
-fn test_setup_time() {
-    let start_datetime = Local
+fn test_setup_current_datetime() {
+    let current_datetime = chrono::Local
         .with_ymd_and_hms(2024, 12, 27, 12, 27, 33)
         .unwrap();
-    assert_eq!("2024-12-27 12:27:33 +09:00", start_datetime.to_string());
-}
-
-#[test]
-fn test_get_pomodoro_start_time_less_than_60_seconds() {
-    let current_datetime = Local
-        .with_ymd_and_hms(2024, 12, 27, 12, 59, 01)
-        .unwrap();
-let result = get_pomodoro_start_time(current_datetime);
-
-assert_eq!("2024-12-27 13:05:00 +09:00", result.to_string());
-}
-
-#[test]
-fn test_get_pomodoro_start_time_exactly_60_seconds() {
-    let current_datetime = Local
-        .with_ymd_and_hms(2024, 12, 27, 12, 59, 00)
-        .unwrap();
-    let result = get_pomodoro_start_time(current_datetime);
-
-    assert_eq!("2024-12-27 13:00:00 +09:00", result.to_string());
+    assert_eq!("2024-12-27 12:27:33 +09:00", current_datetime.to_string());
 }
 
 #[test]
 fn test_get_pomodoro_start_time_greater_than_60_seconds() {
-    let current_datetime = Local
+    let current_datetime = chrono::Local
         .with_ymd_and_hms(2024, 12, 27, 12, 58, 59)
         .unwrap();
     let result = get_pomodoro_start_time(current_datetime);
-
     assert_eq!("2024-12-27 13:00:00 +09:00", result.to_string());
 }
 
 #[test]
-fn test_calc_pomodoro() {
-    let start_datetime = Local
+fn test_get_pomodoro_start_time_exactly_60_seconds() {
+    let current_datetime = chrono::Local
+        .with_ymd_and_hms(2024, 12, 27, 12, 59, 00)
+        .unwrap();
+    let result = get_pomodoro_start_time(current_datetime);
+    assert_eq!("2024-12-27 13:00:00 +09:00", result.to_string());
+}
+
+#[test]
+fn test_get_pomodoro_start_time_less_than_60_seconds() {
+    let current_datetime = chrono::Local
+        .with_ymd_and_hms(2024, 12, 27, 12, 59, 01)
+        .unwrap();
+    let result = get_pomodoro_start_time(current_datetime);
+    assert_eq!("2024-12-27 13:05:00 +09:00", result.to_string());
+}
+
+#[test]
+fn test_generate_pomodoro_schedule() {
+    let pomodoro_start_datetime = chrono::Local
         .with_ymd_and_hms(2024, 12, 27, 12, 30, 00)
         .unwrap();
-    let result = calc_pomodoro(start_datetime);
+    let result = generate_pomodoro_schedule(pomodoro_start_datetime);
     assert_eq!("2024-12-27 12:30:00 +09:00", result[0].to_string());
     assert_eq!("2024-12-27 12:55:00 +09:00", result[1].to_string());
 
@@ -73,11 +70,11 @@ fn test_calc_pomodoro() {
 }
 
 #[test]
-fn test_calc_result_pomodoro() {
-    let start_datetime = Local
-        .with_ymd_and_hms(2024, 12, 27, 12, 30, 00)
+fn test_get_pomodoro_schedule() {
+    let current_datetime = chrono::Local
+        .with_ymd_and_hms(2024, 12, 27, 12, 27, 33)
         .unwrap();
-    let result = calc_result_pomodoro(calc_pomodoro(start_datetime));
+    let result = get_pomodoro_schedule(current_datetime);
     assert_eq!("12/27 12:30 ~ 12:55 work 1", result[0]);
     assert_eq!("12/27 12:55 ~ 13:00 break 1\n", result[1]);
 
